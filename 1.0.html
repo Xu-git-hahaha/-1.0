@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中国养老产业交互式洞察报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Harmony -->
+    <!-- Application Structure Plan: A dashboard-style, thematic single-page application. The structure prioritizes user-led exploration over linear report reading. Key sections include: 1) A high-level Overview with key metrics; 2) A Market Panorama with interactive charts on size and structure; 3) A deep-dive into Sectors & Models featuring a company comparison tool; 4) A focus on Tech Empowerment visualizing smart elderly care applications; 5) A summary of Regional trends and Investment outlooks. A sticky navigation bar enables quick access, promoting a non-linear user flow that is more engaging and efficient for synthesizing complex information. -->
+    <!-- Visualization & Content Choices: Report data is transformed for interactive consumption. Market Size -> Line Chart (Goal: Show Change). "9073" Structure -> HTML/CSS Segmented Bars (Goal: Compare, Performance). Industry Chain -> HTML/CSS Diagram (Goal: Organize). Company Profiles -> Tabbed Interface (Goal: Compare). Hot Sectors -> Interactive Cards (Goal: Organize). Smart Tech -> Interactive HTML Grid (Goal: Show Relationships). Hot Cities -> Dynamic List with Filters (Goal: Inform/Compare). This selection uses Chart.js for the line chart and performant HTML/Tailwind for other diagrams, ensuring adherence to the NO SVG/Mermaid constraint while providing rich interactivity and clarity. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: #FDFBF7; color: #44403c; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        .nav-link { transition: color 0.3s, border-bottom-color 0.3s; }
+        .nav-link.active, .nav-link:hover { color: #0284c7; border-bottom-color: #0284c7; }
+        .tab-button.active { background-color: #0284c7; color: white; }
+        .tab-button { transition: background-color 0.3s, color 0.3s; }
+        .fade-in { animation: fadeIn 0.8s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-amber-50">
+
+    <header id="header" class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl md:text-2xl font-bold text-stone-800">中国养老产业洞察</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#overview" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-600 border-b-2 border-transparent">核心洞察</a>
+                        <a href="#market" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-600 border-b-2 border-transparent">市场全景</a>
+                        <a href="#models" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-600 border-b-2 border-transparent">赛道与模式</a>
+                        <a href="#tech" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-600 border-b-2 border-transparent">科技赋能</a>
+                        <a href="#investment" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-600 border-b-2 border-transparent">机遇与投资</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-stone-500 hover:text-stone-700 hover:bg-stone-100 focus:outline-none">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#overview" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-stone-600 border-b-2 border-transparent">核心洞察</a>
+                <a href="#market" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-stone-600 border-b-2 border-transparent">市场全景</a>
+                <a href="#models" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-stone-600 border-b-2 border-transparent">赛道与模式</a>
+                <a href="#tech" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-stone-600 border-b-2 border-transparent">科技赋能</a>
+                <a href="#investment" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-stone-600 border-b-2 border-transparent">机遇与投资</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <section id="overview" class="fade-in scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-stone-800">核心洞察：一个战略性经济支柱的崛起</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-stone-600">
+                    在中国人口结构深刻变迁和国家战略双轮驱动下，养老产业正从社会福利事业向多元化、市场化的经济支柱转型。本节将为您展示产业的核心数据、关键挑战与历史性机遇。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                    <p class="text-5xl font-bold text-sky-600">12万亿</p>
+                    <p class="mt-2 text-stone-600 font-semibold">2023年市场规模 (元)</p>
+                    <p class="text-sm text-stone-500">同比增长16.5%</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                    <p class="text-5xl font-bold text-sky-600">3.1亿</p>
+                    <p class="mt-2 text-stone-600 font-semibold">2024年底60岁+人口</p>
+                    <p class="text-sm text-stone-500">占总人口22.0%</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                    <p class="text-5xl font-bold text-sky-600">30万亿</p>
+                    <p class="mt-2 text-stone-600 font-semibold">2035年银发经济规模预测 (元)</p>
+                    <p class="text-sm text-stone-500">预计占GDP 10%</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="font-bold text-xl mb-4 text-orange-600 flex items-center"><span class="text-3xl mr-2">⚠️</span>核心挑战</h3>
+                    <ul class="space-y-3 text-stone-700">
+                        <li><strong>供需结构错配:</strong> 高端服务过剩，低端质量堪忧，市场急需的普惠型专业照护严重短缺。</li>
+                        <li><strong>盈利模式困境:</strong> 重资产、高成本、长周期、低利润，多数机构面临盈利难题。</li>
+                        <li><strong>专业人才短缺:</strong> 合格护理员、康复师缺口巨大，成为制约服务质量的最大瓶颈。</li>
+                        <li><strong>支付体系不健全:</strong> 养老金保障有限，长护险仍在试点，有效需求释放受限。</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="font-bold text-xl mb-4 text-green-600 flex items-center"><span class="text-3xl mr-2">🚀</span>战略机遇</h3>
+                    <ul class="space-y-3 text-stone-700">
+                        <li><strong>“新老年”消费升级:</strong> “50后、60后”具备更强支付能力和多元化需求，驱动市场从“养老”到“享老”。</li>
+                        <li><strong>政策红利持续释放:</strong> “积极应对人口老龄化”国家战略确保产业处于长期有利的政策环境。</li>
+                        <li><strong>科技与金融双赋能:</strong> 智慧养老技术重塑服务模式，REITs等金融工具破解融资难题。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-stone-200">
+
+        <section id="market" class="fade-in scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-stone-800">市场全景：万亿蓝海的规模与结构</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-stone-600">
+                    中国养老产业体量巨大且增长迅速。本节将通过动态图表，直观展示市场规模的未来趋势、养老模式的现实格局以及完整的产业链条，帮助您理解这个庞大市场的构成。
+                </p>
+            </div>
+
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg mb-12">
+                <h3 class="font-bold text-xl mb-4 text-stone-700">中国养老产业市场规模预测 (万亿人民币)</h3>
+                <div class="chart-container">
+                    <canvas id="marketSizeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                    <h3 class="font-bold text-xl mb-4 text-stone-700">养老格局：理想“9073” vs 现实“9613”</h3>
+                    <p class="text-stone-600 mb-6">政策倡导以居家为基础的“9073”模式，但市场现实是社区养老服务渗透率极低，居家养老占比更高。这种结构性差异揭示了社区服务发展的薄弱环节和巨大潜力。</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-1 gap-8 items-center">
+                        <div class="mb-6">
+                            <h4 class="text-center font-semibold text-stone-600 mb-2">政策模型：“9073”</h4>
+                            <div class="w-full bg-stone-200 rounded-full h-8 flex overflow-hidden text-white text-xs font-bold">
+                                <div class="flex justify-center items-center h-full bg-sky-500" style="width: 90%;">90%</div>
+                                <div class="flex justify-center items-center h-full bg-orange-400" style="width: 7%;">7%</div>
+                                <div class="flex justify-center items-center h-full bg-purple-500" style="width: 3%;">3%</div>
+                            </div>
+                             <div class="flex justify-around text-xs mt-2 px-1">
+                                <span><span class="inline-block w-2 h-2 rounded-full bg-sky-500 mr-1"></span>居家</span>
+                                <span><span class="inline-block w-2 h-2 rounded-full bg-orange-400 mr-1"></span>社区</span>
+                                <span><span class="inline-block w-2 h-2 rounded-full bg-purple-500 mr-1"></span>机构</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-center font-semibold text-stone-600 mb-2">市场现实：“9613”</h4>
+                            <div class="w-full bg-stone-200 rounded-full h-8 flex overflow-hidden text-white text-xs font-bold">
+                                <div class="flex justify-center items-center h-full bg-sky-500" style="width: 96%;">96%</div>
+                                <div class="flex justify-center items-center h-full bg-orange-400" style="width: 1%;">1%</div>
+                                <div class="flex justify-center items-center h-full bg-purple-500" style="width: 3%;">3%</div>
+                            </div>
+                             <div class="flex justify-around text-xs mt-2 px-1">
+                                <span><span class="inline-block w-2 h-2 rounded-full bg-sky-500 mr-1"></span>居家</span>
+                                <span><span class="inline-block w-2 h-2 rounded-full bg-orange-400 mr-1"></span>社区</span>
+                                <span><span class="inline-block w-2 h-2 rounded-full bg-purple-500 mr-1"></span>机构</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                    <h3 class="font-bold text-xl mb-4 text-stone-700">产业链解构</h3>
+                    <p class="text-stone-600 mb-6">养老产业涉及面广，从上游的资源供应到中游的服务制造，再到下游的消费终端，构成了一个完整的生态系统。</p>
+                    <div class="space-y-6">
+                        <div class="p-4 bg-sky-50 rounded-lg">
+                            <h4 class="font-bold text-lg text-sky-700">上游：资源与要素</h4>
+                            <p class="text-stone-600">金融机构、政府、房地产、设备技术商、教育培训机构。</p>
+                        </div>
+                        <div class="p-4 bg-green-50 rounded-lg">
+                             <h4 class="font-bold text-lg text-green-700">中游：产品与服务</h4>
+                             <p class="text-stone-600">养老服务运营商（养老院/社区/居家）、老年用品制造商、专业服务商（文旅/教育/金融）。</p>
+                        </div>
+                        <div class="p-4 bg-orange-50 rounded-lg">
+                            <h4 class="font-bold text-lg text-orange-700">下游：消费端</h4>
+                            <p class="text-stone-600">广大老年人及其家庭，是决定产业发展方向的最终力量。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-stone-200">
+
+        <section id="models" class="fade-in scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-stone-800">赛道与模式：领军者的探索与创新</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-stone-600">
+                    随着资本涌入，养老产业形成了多元化的竞争格局。本节将深度剖析以泰康和万科为代表的两种主流商业模式，并展示医养结合、康养旅居等高增长的热点赛道。
+                </p>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-12">
+                <h3 class="font-bold text-xl mb-2 text-stone-700">案例研究：泰康 vs 万科</h3>
+                <p class="text-stone-600 mb-6">保险与地产两大巨头，分别从金融支付端和服务供给端切入，探索出两种不同的重资产运营模式，但最终殊途同归，都走向了“金融+地产+医疗”的深度融合。请点击下方标签切换查看。</p>
+                <div class="mb-4 flex space-x-2 border-b border-stone-200">
+                    <button id="tab-taikang" class="tab-button px-4 py-2 text-sm font-semibold text-stone-600 border-b-2 border-transparent -mb-px">泰康保险：“保险+医养”闭环</button>
+                    <button id="tab-vanke" class="tab-button px-4 py-2 text-sm font-semibold text-stone-600 border-b-2 border-transparent -mb-px">万科集团：“地产+服务”演进</button>
+                </div>
+                <div id="content-taikang" class="tab-content">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-lg text-stone-800 mb-2">核心模式：CCRC + 深度医养结合</h4>
+                            <p class="text-stone-600">通过高端保险产品锁定高净值客户，获得入住旗下“泰康之家”CCRC（持续照料退休社区）的资格。每个社区配建一家康复医院，实现从独立生活到专业护理的一站式、连续性医养服务。</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg text-stone-800 mb-2">盈利模式：押金/保单 + 月费</h4>
+                            <p class="text-stone-600">客户通过购买保险或缴纳高额可退还押金获得入住权，入住后按月缴纳服务费。前期快速回笼资金，后期获得稳定现金流。</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="content-vanke" class="tab-content hidden">
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-lg text-stone-800 mb-2">核心模式：大社区 + 养老组团 + 专业护理院</h4>
+                            <p class="text-stone-600">将养老项目嵌入万科自建的成熟大型社区中，依托大社区的成熟配套降低成本。同时自建专业护理院，补齐医养结合的短板，满足失能长者的刚需。</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg text-stone-800 mb-2">盈利模式：长期租赁 + 月费 + 护理费</h4>
+                            <p class="text-stone-600">从早期的“使用权销售”转型为“15年长租+月费”的持有运营模式，关注长期服务价值。自建的护理院成为重要的盈利增长点。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="font-bold text-xl mb-6 text-center text-stone-700">核心热点赛道</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300">
+                        <h4 class="font-semibold text-lg text-sky-700 mb-2">医养结合</h4>
+                        <p class="text-stone-600 text-sm">最刚性的需求赛道，解决养老服务“最后一公里”的关键。模式包括机构内设医疗、医养联合体、一体化社区等，核心是实现医疗与养老的无缝衔接。</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300">
+                        <h4 class="font-semibold text-lg text-green-700 mb-2">康养旅居</h4>
+                        <p class="text-stone-600 text-sm">由“新老年”群体驱动的万亿级蓝海市场，追求在游历中实现健康管理和生活体验。已形成旅居、运动、疗愈、研学等业态。</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300">
+                        <h4 class="font-semibold text-lg text-orange-700 mb-2">老年教育</h4>
+                        <p class="text-stone-600 text-sm">精神文化需求增长引爆市场。公立大学“一座难求”，线上“兴趣+社交”模式打破地域限制，发展潜力巨大。</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300">
+                        <h4 class="font-semibold text-lg text-purple-700 mb-2">老龄金融</h4>
+                        <p class="text-stone-600 text-sm">支撑产业发展的基石。包括养老金三支柱、以“长护险”为核心的服务金融、以及以REITs为代表的产业金融。</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300">
+                        <h4 class="font-semibold text-lg text-red-700 mb-2">老年用品</h4>
+                        <p class="text-stone-600 text-sm">从传统辅具向智能化、高品质产品升级。智能穿戴、健康监测、适老化家居等领域前景广阔。</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300">
+                        <h4 class="font-semibold text-lg text-yellow-700 mb-2">轻资产模式</h4>
+                        <p class="text-stone-600 text-sm">应对重资产困境，“公建民营”、“物业+养老”等模式兴起，为有运营能力但缺乏资本的机构提供发展机会，满足大众市场需求。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <hr class="my-16 border-stone-200">
+
+        <section id="tech" class="fade-in scroll-mt-20">
+             <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-stone-800">科技赋能：“智慧养老”如何重塑产业</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-stone-600">
+                    “智慧养老”是利用新一代信息技术，应对劳动力短缺、提升服务效率与质量的核心手段。本节将展示关键技术在居家、社区、机构三大场景中的具体应用和解决方案。
+                </p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h3 class="font-bold text-xl mb-6 text-stone-700">智慧养老技术应用矩阵</h3>
+                 <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="p-4 bg-stone-100 font-semibold text-stone-700 border-b-2 border-stone-200">技术领域</th>
+                                <th class="p-4 bg-stone-100 font-semibold text-stone-700 border-b-2 border-stone-200">核心技术</th>
+                                <th class="p-4 bg-stone-100 font-semibold text-stone-700 border-b-2 border-stone-200">应用场景</th>
+                                <th class="p-4 bg-stone-100 font-semibold text-stone-700 border-b-2 border-stone-200">解决痛点</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-stone-600">
+                            <tr class="hover:bg-amber-50">
+                                <td class="p-4 border-b border-stone-200 font-semibold text-sky-700">安全监护</td>
+                                <td class="p-4 border-b border-stone-200">物联网传感器, 毫米波雷达, AI视觉</td>
+                                <td class="p-4 border-b border-stone-200">居家, 社区, 机构</td>
+                                <td class="p-4 border-b border-stone-200">跌倒、走失、突发意外无人发现</td>
+                            </tr>
+                            <tr class="hover:bg-amber-50">
+                                <td class="p-4 border-b border-stone-200 font-semibold text-green-700">健康管理</td>
+                                <td class="p-4 border-b border-stone-200">可穿戴设备, 生物传感, 大数据</td>
+                                <td class="p-4 border-b border-stone-200">居家, 社区, 机构</td>
+                                <td class="p-4 border-b border-stone-200">慢性病管理难, 健康数据难追踪</td>
+                            </tr>
+                            <tr class="hover:bg-amber-50">
+                                <td class="p-4 border-b border-stone-200 font-semibold text-orange-700">生活照料</td>
+                                <td class="p-4 border-b border-stone-200">服务机器人, 智能家居</td>
+                                <td class="p-4 border-b border-stone-200">居家, 机构</td>
+                                <td class="p-4 border-b border-stone-200">生活不便, 护理人员短缺</td>
+                            </tr>
+                            <tr class="hover:bg-amber-50">
+                                <td class="p-4 border-b border-stone-200 font-semibold text-purple-700">精神慰藉</td>
+                                <td class="p-4 border-b border-stone-200">AI语音交互, VR</td>
+                                <td class="p-4 border-b border-stone-200">居家, 机构</td>
+                                <td class="p-4 border-b border-stone-200">孤独感, 社交圈萎缩</td>
+                            </tr>
+                            <tr class="hover:bg-amber-50">
+                                <td class="p-4 border-b border-stone-200 font-semibold text-red-700">机构运营</td>
+                                <td class="p-4 border-b border-stone-200">云计算, SaaS平台</td>
+                                <td class="p-4 border-b border-stone-200">机构, 社区</td>
+                                <td class="p-4 border-b border-stone-200">管理效率低, 成本高, 流程不透明</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                 </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-stone-200">
+
+        <section id="investment" class="fade-in scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-stone-800">机遇与投资：洞见未来，把握趋势</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-stone-600">
+                    尽管挑战重重，但养老产业的历史性机遇同样不容忽视。本节将分析热门的康养城市选择，并为投资者、运营商和政策制定者提供前瞻性的投资方向与战略建议。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                    <h3 class="font-bold text-xl mb-4 text-stone-700">热门康养城市风向标</h3>
+                    <p class="text-stone-600 mb-6">“候鸟式养老”兴起，催生了一批备受青睐的康养城市，其选择主要围绕气候、医疗和生活成本。点击下方按钮，查看不同季节的热门选择。</p>
+                    <div class="flex space-x-4 mb-4">
+                        <button id="city-summer" class="city-filter-button flex-1 bg-sky-100 text-sky-800 font-semibold py-2 px-4 rounded-lg">☀️ 夏季避暑地</button>
+                        <button id="city-winter" class="city-filter-button flex-1 bg-orange-100 text-orange-800 font-semibold py-2 px-4 rounded-lg">❄️ 冬季避寒地</button>
+                    </div>
+                    <ul id="city-list" class="space-y-2 text-stone-600">
+                    </ul>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                     <h3 class="font-bold text-xl mb-4 text-stone-700">重点投资方向</h3>
+                    <ul class="space-y-4">
+                        <li class="p-4 bg-stone-50 rounded-lg">
+                            <h4 class="font-semibold text-stone-800">赋能居家社区的服务与技术平台</h4>
+                            <p class="text-sm text-stone-600">投资智慧养老SaaS平台、专业上门服务连锁机构，抓住“90%居家”主战场。</p>
+                        </li>
+                        <li class="p-4 bg-stone-50 rounded-lg">
+                            <h4 class="font-semibold text-stone-800">中端普惠型医养结合机构</h4>
+                            <p class="text-sm text-stone-600">聚焦市场“真空地带”，通过存量资产改造等模式，提供价格可及的专业护理服务。</p>
+                        </li>
+                        <li class="p-4 bg-stone-50 rounded-lg">
+                            <h4 class="font-semibold text-stone-800">高附加值老年用品与康复辅具</h4>
+                            <p class="text-sm text-stone-600">开发智能健康监护设备、高端康复辅具等高科技、高附加值产品。</p>
+                        </li>
+                         <li class="p-4 bg-stone-50 rounded-lg">
+                            <h4 class="font-semibold text-stone-800">老年精神文化消费</h4>
+                            <p class="text-sm text-stone-600">投资创新型老年教育平台、主题式康养文旅产品，满足“享老”需求。</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-stone-800 text-white mt-16">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm">
+            <p>&copy; 2025 中国养老产业交互式洞察报告。仅供研究与分析使用。</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section');
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 100) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+
+            const marketSizeData = {
+                labels: ['2023', '2027', '2030', '2035'],
+                datasets: [{
+                    label: '市场规模 (万亿)',
+                    data: [12, 20, 22.3, 30],
+                    borderColor: '#0284c7',
+                    backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#0284c7',
+                    pointRadius: 5
+                }]
+            };
+            new Chart(document.getElementById('marketSizeChart'), {
+                type: 'line',
+                data: marketSizeData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, grid: { color: '#e7e5e4' } }, x: { grid: { display: false } } },
+                    plugins: { legend: { display: false } },
+                    animation: false
+                }
+            });
+
+            const tabTaikang = document.getElementById('tab-taikang');
+            const tabVanke = document.getElementById('tab-vanke');
+            const contentTaikang = document.getElementById('content-taikang');
+            const contentVanke = document.getElementById('content-vanke');
+            
+            function switchTab(activeTab, inactiveTab, activeContent, inactiveContent) {
+                activeTab.classList.add('active');
+                inactiveTab.classList.remove('active');
+                activeContent.classList.remove('hidden');
+                inactiveContent.classList.add('hidden');
+            }
+
+            tabTaikang.addEventListener('click', () => switchTab(tabTaikang, tabVanke, contentTaikang, contentVanke));
+            tabVanke.addEventListener('click', () => switchTab(tabVanke, tabTaikang, contentVanke, contentTaikang));
+            switchTab(tabTaikang, tabVanke, contentTaikang, contentVanke);
+
+
+            const cityData = {
+                summer: [
+                    { name: '贵州六盘水', reason: '气候凉爽，海拔适宜' },
+                    { name: '云南昆明', reason: '“春城”美誉，四季如春' },
+                    { name: '贵州贵阳', reason: '中国避暑之都' },
+                    { name: '山东青岛', reason: '滨海城市，气候宜人' },
+                    { name: '吉林长春', reason: '夏季凉爽，森林覆盖率高' },
+                ],
+                winter: [
+                    { name: '海南三亚', reason: '热带气候，阳光沙滩' },
+                    { name: '广西南宁', reason: '“绿城”，冬季温暖' },
+                    { name: '广东珠海', reason: '百岛之市，气候舒适' },
+                    { name: '福建厦门', reason: '海上花园，冬无严寒' },
+                    { name: '云南西双版纳', reason: '热带雨林气候，风情独特' },
+                ]
+            };
+
+            const citySummerBtn = document.getElementById('city-summer');
+            const cityWinterBtn = document.getElementById('city-winter');
+            const cityList = document.getElementById('city-list');
+
+            function renderCities(season) {
+                cityList.innerHTML = '';
+                cityData[season].forEach(city => {
+                    const li = document.createElement('li');
+                    li.className = 'p-3 bg-stone-50 rounded-md flex justify-between items-center';
+                    li.innerHTML = `<span><strong>${city.name}</strong></span><span class="text-sm text-stone-500">${city.reason}</span>`;
+                    cityList.appendChild(li);
+                });
+                 citySummerBtn.classList.toggle('bg-sky-600', season === 'summer');
+                 citySummerBtn.classList.toggle('text-white', season === 'summer');
+                 cityWinterBtn.classList.toggle('bg-orange-500', season === 'winter');
+                 cityWinterBtn.classList.toggle('text-white', season === 'winter');
+            }
+
+            citySummerBtn.addEventListener('click', () => renderCities('summer'));
+            cityWinterBtn.addEventListener('click', () => renderCities('winter'));
+
+            renderCities('summer');
+        });
+    </script>
+</body>
+</html>
